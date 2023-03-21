@@ -59,4 +59,23 @@ export class DocumentsService {
       }
     });
   }
+
+  async findById(id: number) {
+    const ExistingDoc = await this.prisma.document.findUnique({
+      where: {
+        id
+      }
+    });
+
+    if(!ExistingDoc){
+      throw new HttpException(
+        `Document does not exist`,
+        HttpStatus.NOT_FOUND
+      );
+    }
+
+    const fileName = ExistingDoc.name;
+
+    return fileName
+  }
 }
