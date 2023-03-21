@@ -1,4 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+//import { PDFDocument } from 'pdf-lib';
+//import fs from 'fs';
+//const merge = require('easy-pdf-merge');
 import { PrismaService } from 'src/database/prisma.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
@@ -31,6 +34,23 @@ export class DocumentsService {
     if(!ExistingDoc){
       throw new HttpException(
         `No matches with ${name}`,
+        HttpStatus.NOT_FOUND
+      );
+    }
+
+    return ExistingDoc;
+  }
+
+  async findManyByExtension(ext: string) {
+    const ExistingDoc = await this.prisma.document.findMany({
+      where: {
+        ext
+      }
+    });
+
+    if(!ExistingDoc){
+      throw new HttpException(
+        `No matches with ${ext}`,
         HttpStatus.NOT_FOUND
       );
     }
@@ -74,8 +94,13 @@ export class DocumentsService {
       );
     }
 
-    const fileName = ExistingDoc.name;
+    /*erge(['../Merge1.pdf', '../Merge2.pdf'], '../Merged.pdf', function (err) {
+      if (err) {
+          return console.log(err)
+      }
+      console.log('Successfully merged!')
+    });*/
 
-    return fileName
+    return ExistingDoc.name;
   }
 }

@@ -11,6 +11,10 @@ export class CreateDocumentDto {
     name: string;
 
     @IsString()
+    @MaxLength(10)
+    ext: string;
+
+    @IsString()
     @MinLength(2)
     @MaxLength(150)
     stored_in: string;

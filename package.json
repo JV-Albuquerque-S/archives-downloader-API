@@ -29,6 +29,8 @@
     "class-validator": "^0.14.0",
     "dotenv": "^16.0.3",
     "dotenv-cli": "^7.1.0",
+    "easy-pdf-merge": "^0.2.6",
+    "pdf-lib": "^1.17.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0"
   },

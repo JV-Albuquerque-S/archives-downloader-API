@@ -22,12 +22,18 @@ export class DocumentsController {
     return this.documentsService.findManyByName(name);
   }
 
+  @Get('extension/:extension')
+  findMany(@Param('extension') extension: string) {
+    return this.documentsService.findManyByExtension(extension);
+  }
+
   @Get('download/:id')
   async download(@Res() res, @Req() req) {
     const fileName = await this.documentsService.findById(Number(req.params.id));
-    //res.setHeader('Content-type', 'application/octet-stream');
-    //res.attachment(fileName);
-    return res.download("../"+ fileName);
+    res.setHeader('Content-type', 'application/octet-stream');
+    res.attachment(fileName);
+
+    return await res.download("../"+ fileName);
   }
 
   @Patch(':id')
