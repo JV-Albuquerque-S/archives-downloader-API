@@ -17,7 +17,7 @@ export class DocumentsController {
     return this.documentsService.findAll();
   }
 
-  @Get(':name')
+  @Get('name/:name')
   findOne(@Param('name') name: string) {
     return this.documentsService.findManyByName(name);
   }
@@ -27,11 +27,12 @@ export class DocumentsController {
     return this.documentsService.findManyByExtension(extension);
   }
 
-  @Get('download/:id')
+  @Get('download/')
   async download(@Res() res, @Req() req) {
-    const fileName = await this.documentsService.findById(Number(req.params.id));
-    res.setHeader('Content-type', 'application/octet-stream');
-    res.attachment(fileName);
+    //console.log(req.query)
+    const fileName = await this.documentsService.findById(req.query);
+    //res.setHeader('Content-type', 'application/octet-stream');
+    //res.attachment(fileName);
 
     return await res.download("../"+ fileName);
   }

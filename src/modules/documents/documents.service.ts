@@ -1,7 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-//import { PDFDocument } from 'pdf-lib';
 //import fs from 'fs';
-//const merge = require('easy-pdf-merge');
+const merge = require('easy-pdf-merge');
+const fs = require('fs');
+const AdmZip = require('adm-zip');
 import { PrismaService } from 'src/database/prisma.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
@@ -80,10 +81,51 @@ export class DocumentsService {
     });
   }
 
-  async findById(id: number) {
-    const ExistingDoc = await this.prisma.document.findUnique({
+  async findById(id) {
+    //transforma o obj em uma array dos seus valores
+    let array = Object.values(id);
+
+    let filesPath = [];
+
+    //console.log(array)
+    let count = 0
+
+    //roda todos os valores, se tiver algum que não seja pdf
+    //soma count pra checar se tem que fazer merge ou pasta
+    //.zip, se tiver algum id que não exista já retorna erro
+    //e se for só um elemento no array já retorna o nome do
+    //arquivo
+    for(let i=0; i<array.length; i++){
+      let j = Number(array[i])
+      const singleDoc = await this.prisma.document.findUnique({
+        where: {
+          id: j
+        }
+      });
+      if(!singleDoc){
+        throw new HttpException(
+          `Document does not exist`,
+          HttpStatus.NOT_FOUND
+        );
+      }
+      filesPath.push(`../${singleDoc.name}`)
+      if(array.length===1) return singleDoc.name
+      if(singleDoc.ext !== 'pdf') count++
+    }
+
+    if(count===0){
+      merge(filesPath, '../Merged.pdf', function (err){
+        if(err) {
+          return console.log(err);
+        }
+        console.log(`${filesPath} successfully merged!`)
+      })  
+    }
+    //console.log(count)
+
+    /*const ExistingDoc = await this.prisma.document.findUnique({
       where: {
-        id
+        id: 1
       }
     });
 
@@ -92,15 +134,8 @@ export class DocumentsService {
         `Document does not exist`,
         HttpStatus.NOT_FOUND
       );
-    }
+    }*/
 
-    /*erge(['../Merge1.pdf', '../Merge2.pdf'], '../Merged.pdf', function (err) {
-      if (err) {
-          return console.log(err)
-      }
-      console.log('Successfully merged!')
-    });*/
-
-    return ExistingDoc.name;
+    return 'Merged.pdf';
   }
 }
