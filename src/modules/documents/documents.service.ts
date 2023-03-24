@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-//import fs from 'fs';
 const merge = require('easy-pdf-merge');
 const fs = require('fs');
 const AdmZip = require('adm-zip');
@@ -121,6 +120,14 @@ export class DocumentsService {
         console.log(`${filesPath} successfully merged!`)
       })  
     }
+
+    /*if(!fs.existsSync('../Merged.pdf')){
+      while (!fs.existsSync('../Merged.pdf')) {}
+      let i=0;
+      while(i<1000000000){
+        i++
+      }
+    }*/
     //console.log(count)
 
     /*const ExistingDoc = await this.prisma.document.findUnique({

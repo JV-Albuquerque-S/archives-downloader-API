@@ -34,7 +34,8 @@ export class DocumentsController {
     //res.setHeader('Content-type', 'application/octet-stream');
     //res.attachment(fileName);
 
-    return await res.download("../"+ fileName);
+    setTimeout(async() => {return await res.download("../"+ fileName);}, 2000);
+    
   }
 
   @Patch(':id')
