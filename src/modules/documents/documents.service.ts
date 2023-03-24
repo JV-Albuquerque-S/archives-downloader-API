@@ -1,7 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 const merge = require('easy-pdf-merge');
 const fs = require('fs');
-const AdmZip = require('adm-zip');
+const path = require("path");
+var archiver = require('archiver');
 import { PrismaService } from 'src/database/prisma.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
@@ -83,10 +84,8 @@ export class DocumentsService {
   async findById(id) {
     //transforma o obj em uma array dos seus valores
     let array = Object.values(id);
-
+    
     let filesPath = [];
-
-    //console.log(array)
     let count = 0
 
     //roda todos os valores, se tiver algum que não seja pdf
@@ -118,31 +117,54 @@ export class DocumentsService {
           return console.log(err);
         }
         console.log(`${filesPath} successfully merged!`)
-      })  
+      });
+      return 'Merged.pdf';
     }
 
-    /*if(!fs.existsSync('../Merged.pdf')){
-      while (!fs.existsSync('../Merged.pdf')) {}
-      let i=0;
-      while(i<1000000000){
-        i++
-      }
-    }*/
-    //console.log(count)
+    if(count>0){
+      fs.rmdir("../all_files",
+      { recursive: true, force: true }, (err) => {
+        if (err) {
+          return console.log("error occurred in deleting directory", err);
+        }
+        console.log("Directory deleted successfully");
+      });
+      fs.rmdir("../n_all_files.zip",
+      { recursive: true, force: true }, (err) => {
+        if (err) {
+          return console.log("error occurred in deleting directory", err);
+        }
+        console.log("Directory deleted successfully");
+      });
 
-    /*const ExistingDoc = await this.prisma.document.findUnique({
-      where: {
-        id: 1
-      }
-    });
+      setTimeout(() => {fs.mkdirSync(path.join('../', "all_files"));}, 500);
+      setTimeout(() => {
+        for(let i=0; i<filesPath.length; i++){
+          fs.copyFileSync(filesPath[i], `../all_files/copied${filesPath[i].substring(3)}`);
+        }
+      }, 500);
 
-    if(!ExistingDoc){
-      throw new HttpException(
-        `Document does not exist`,
-        HttpStatus.NOT_FOUND
-      );
-    }*/
+      setTimeout(() => {
+        var output = fs.createWriteStream('../n_all_files.zip');
+        var archive = archiver('zip');
+  
+        output.on('close', function () {
+            console.log(archive.pointer() + ' total bytes');
+            console.log('archiver has been finalized and the output file descriptor has closed.');
+        });
+  
+        archive.on('error', function(err){
+            throw err;
+        });
+  
+        archive.pipe(output);
+  
+        archive.directory('../all_files', false);
+  
+        archive.finalize();
+      }, 500);
 
-    return 'Merged.pdf';
+      return 'n_all_files.zip'
+    }
   }
 }
